@@ -49,4 +49,20 @@ html,body{height:100%;margin:0;background:linear-gradient(180deg,#fef3f3,#fff);}
 .modal .modal-content{background:#fff;padding:20px;border-radius:12px;text-align:center;max-width:320px;box-shadow:0 12px 40px rgba(0,0,0,.2)}
 .sticker-show{font-size:54px;margin:12px 0}
 .modal.hidden{display:none}
+.mascot{position:absolute;right:18px;top:12px;font-size:36px;transform:translateY(0);transition:transform .6s ease;pointer-events:none}
+.mascot:hover{transform:translateY(-6px) rotate(-6deg)}
+/* level card microinteraction */
+.level{transition:transform .18s cubic-bezier(.2,.9,.3,1),box-shadow .18s}
+.level:hover{transform:translateY(-6px) scale(1.03);box-shadow:0 16px 36px rgba(0,0,0,0.12)}
+/* card press and subtle motion */
+.card{transition:transform .18s,box-shadow .18s}
+.card:active{transform:translateY(2px)}
+/* choices hover */
+.choice{transition:transform .12s ease,box-shadow .12s,border-color .12s}
+.choice:hover{transform:translateY(-4px);box-shadow:0 10px 26px rgba(0,0,0,0.08)}
+/* progress bar glow */
+.progress-bar{box-shadow:0 6px 18px rgba(255,107,107,0.08) inset}
+/* modal scale entrance */
+.modal .modal-content{transform:scale(.98);transition:transform .18s}
+.modal:not(.hidden) .modal-content{transform:scale(1)}
 @media (max-width:520px){.emoji{font-size:68px}.choice{font-size:18px;padding:12px}}

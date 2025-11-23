@@ -130,6 +130,7 @@ class SfxEngine {
   playCorrect(){ this.playChord(660); }
   playWrong(){ this.playTone(160, 'square', 0.25, 0.18); this.playTone(110, 'sine', 0.25, 0.06); }
   playClick(){ this.playTone(880, 'sine', 0.08, 0.06); }
+  playHover(){ this.playTone(1200, 'triangle', 0.06, 0.04); }
   startBackground(){
     if(!audioEnabled) return;
     this.ensureCtx();
@@ -262,6 +263,9 @@ function buildLevels(){
     card.setAttribute('data-level',key);
     card.innerHTML = `<div class="icon">${levels[key][0].emoji}</div><div class="name">${key}</div>`;
     card.addEventListener('click',()=>startLevel(key));
+    // hover sound and tactile feedback
+    card.addEventListener('mouseenter', ()=>{ sfx.playHover(); });
+    card.addEventListener('touchstart', ()=>{ sfx.playHover(); }, {passive:true});
     levelGrid.appendChild(card);
   });
 }
@@ -288,6 +292,8 @@ function renderRound(){
     b.className='choice';
     b.textContent = c.word;
     b.addEventListener('click',()=>onChoice(b,c));
+    b.addEventListener('mouseenter', ()=>{ sfx.playHover(); });
+    b.addEventListener('touchstart', ()=>{ sfx.playHover(); }, {passive:true});
     choicesEl.appendChild(b);
   });
   // update progress UI
