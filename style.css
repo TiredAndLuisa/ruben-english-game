@@ -1,6 +1,6 @@
-:root{--bg:#fff1f0;--card:#ffffff;--accent:#ff6b6b;--accent2:#ffd93d;--text:#222}
+:root{--bg:#f6fbff;--card:rgba(255,255,255,0.72);--accent:#ff6b6b;--accent2:#ffd93d;--text:#222}
 *{box-sizing:border-box;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
-html,body{height:100%;margin:0;background:linear-gradient(180deg,#fef3f3,#fff);} 
+html,body{height:100%;margin:0;background:transparent;} 
 .top{padding:18px 16px 6px;text-align:center}
 .top h1{margin:0;font-size:28px}
 .tag{margin:6px 0 12px;color:#555}
@@ -14,7 +14,7 @@ html,body{height:100%;margin:0;background:linear-gradient(180deg,#fef3f3,#fff);}
 .bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;mix-blend-mode:screen}
 .levels h2{font-size:20px;margin:6px 0}
 .level-grid{display:flex;flex-direction:column;gap:12px;align-items:stretch}
-.level{background:linear-gradient(180deg,#fff,#fff8f0);border-radius:12px;padding:18px;text-align:left;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,0.06);display:flex;align-items:center;gap:12px;transition:transform .18s cubic-bezier(.2,.9,.3,1),box-shadow .18s}
+.level{background:var(--card);border-radius:12px;padding:18px;text-align:left;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,0.06);display:flex;align-items:center;gap:12px;transition:transform .18s cubic-bezier(.2,.9,.3,1),box-shadow .18s;backdrop-filter:blur(6px)}
 .level .icon{font-size:34px;display:inline-block;margin-right:12px}
 .level .name{margin-top:0;font-weight:800;font-size:18px}
 .level.pulse{animation:pop 1s infinite ease-in-out}
@@ -33,7 +33,7 @@ html,body{height:100%;margin:0;background:linear-gradient(180deg,#fef3f3,#fff);}
 @keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.04)}100%{transform:scale(1)}}
 .game-top{display:flex;align-items:center;gap:12px}
 .game-top button{background:#eee;border:none;padding:8px;border-radius:8px}
-.card{display:flex;flex-direction:column;align-items:center;padding:18px;margin:14px 0;background:var(--card);border-radius:14px;box-shadow:0 8px 26px rgba(0,0,0,.06)}
+.card{display:flex;flex-direction:column;align-items:center;padding:18px;margin:14px 0;background:var(--card);backdrop-filter:blur(6px);border-radius:14px;box-shadow:0 8px 26px rgba(0,0,0,.06)}
 .emoji{font-size:84px}
 .speak{margin-top:10px;background:var(--accent2);border:none;padding:8px 12px;border-radius:10px;font-weight:700}
 .choices{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
@@ -47,7 +47,7 @@ html,body{height:100%;margin:0;background:linear-gradient(180deg,#fef3f3,#fff);}
 .next{background:var(--accent);color:#fff;border:none;padding:10px 14px;border-radius:12px}
 .foot{text-align:center;padding:18px;color:#666}
 .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);z-index:10000}
-.modal .modal-content{background:#fff;padding:20px;border-radius:12px;text-align:center;max-width:320px;box-shadow:0 12px 40px rgba(0,0,0,.2)}
+.modal .modal-content{background:rgba(255,255,255,0.88);padding:20px;border-radius:12px;text-align:center;max-width:320px;box-shadow:0 12px 40px rgba(0,0,0,.2);backdrop-filter:blur(6px)}
 .sticker-show{font-size:54px;margin:12px 0}
 .modal.hidden{display:none}
 .mascot{position:absolute;right:18px;top:12px;font-size:36px;transform:translateY(0);transition:transform .6s ease;pointer-events:none}
