@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -9,62 +9,62 @@
 <body>
   <header class="top">
     <h1>Professor Ruben 🎓</h1>
-    <p class="tag">Aprenda inglês brincando — toque para ouvir e escolher!</p>
+    <p class="tag">Learn English while playing — tap to hear and choose!</p>
     <div class="controls">
-      <button id="audioToggle" aria-pressed="false">🔊 Som</button>
-      <button id="musicToggle" aria-pressed="false">🎵 Música</button>
+      <button id="audioToggle" aria-pressed="false">🔊 Sound</button>
+      <button id="musicToggle" aria-pressed="false">🎵 Music</button>
       <label class="volume"><span>🔉</span><input id="volume" type="range" min="0" max="1" step="0.01" value="0.8"></label>
-      <label class="music-select">Música: <select id="musicSelect">
-        <option value="synth">Loop animado (sintetizado)</option>
-        <option value="twinkle">Twinkle Twinkle (canção infantil)</option>
-        <option value="happy">Happy Loop (animado)</option>
-        <option value="oldmac">Old MacDonald (canção infantil)</option>
-        <option value="wheels">Wheels On The Bus (canção infantil)</option>
+      <label class="music-select">Music: <select id="musicSelect">
+        <option value="synth">Upbeat Loop (synth)</option>
+        <option value="twinkle">Twinkle Twinkle (nursery)</option>
+        <option value="happy">Happy Loop (upbeat)</option>
+        <option value="oldmac">Old MacDonald (nursery)</option>
+        <option value="wheels">Wheels On The Bus (nursery)</option>
       </select></label>
     </div>
   </header>
 
   <main class="container">
     <section class="levels" id="levels">
-      <h2>Escolha um tema</h2>
+      <h2>Choose a theme</h2>
       <div class="level-grid" id="levelGrid"></div>
     </section>
 
     <section class="game hidden" id="game">
       <div class="hud">
         <div class="progress-wrap">
-          <div class="progress-label">Progresso</div>
+          <div class="progress-label">Progress</div>
           <div class="progress"><div id="progressBar" class="progress-bar" style="width:0%"></div></div>
         </div>
         <div class="stickers" id="stickers" aria-hidden="true"></div>
       </div>
       <div class="game-top">
-        <button id="back">⬅ Voltar</button>
+        <button id="back">⬅ Back</button>
         <h2 id="levelTitle"></h2>
       </div>
 
       <div class="card">
         <div id="emoji" class="emoji" aria-hidden="true">🐶</div>
-        <button id="speakBtn" class="speak">🔈 Ouvir</button>
+        <button id="speakBtn" class="speak">🔈 Listen</button>
       </div>
 
       <div class="choices" id="choices"></div>
       <div class="meta">
         <div id="feedback" class="feedback"></div>
-        <button id="next" class="next">Próximo</button>
+        <button id="next" class="next">Next</button>
       </div>
     </section>
   </main>
 
-  <footer class="foot">Dicas: ative som e música, clique na palavra correta e divirta-se! 🎉</footer>
+  <footer class="foot">Tip: enable sound and music, tap the correct word and have fun! 🎉</footer>
 
   <canvas id="confettiCanvas" class="confetti-canvas" aria-hidden="true"></canvas>
 
   <div id="stickerModal" class="modal hidden" role="dialog" aria-modal="true">
     <div class="modal-content">
-      <h3>Você ganhou um adesivo! 🎉</h3>
+      <h3>You earned a sticker! 🎉</h3>
       <div id="stickerShow" class="sticker-show">🏅</div>
-      <button id="closeSticker">Fechar</button>
+      <button id="closeSticker">Close</button>
     </div>
   </div>
 

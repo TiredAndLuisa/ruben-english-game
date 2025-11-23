@@ -300,7 +300,7 @@ function onChoice(btn, choice){
   Array.from(choicesEl.children).forEach(ch=>ch.disabled=true);
   if(correct){
     btn.classList.add('correct');
-    feedbackEl.textContent = '✔ Corretíssimo!';
+    feedbackEl.textContent = '✔ Correct!';
     sfx.playCorrect();
     speak(round.target.word);
     // reward
@@ -308,7 +308,7 @@ function onChoice(btn, choice){
     triggerStickerIfNeeded();
   } else {
     btn.classList.add('wrong');
-    feedbackEl.textContent = '✖ Tente de novo';
+    feedbackEl.textContent = '✖ Try again';
     sfx.playWrong();
     // reveal correct choice
     Array.from(choicesEl.children).forEach(ch=>{
@@ -326,7 +326,7 @@ speakBtn.addEventListener('click',()=>{ sfx.playClick(); speak(round.target.word
 audioToggle.addEventListener('click',()=>{
   audioEnabled = !audioEnabled;
   audioToggle.setAttribute('aria-pressed', String(audioEnabled));
-  audioToggle.textContent = audioEnabled? '🔊 Som' : '🔈 Sem som';
+  audioToggle.textContent = audioEnabled? '🔊 Sound' : '🔈 Muted';
   if(!audioEnabled){ try{ window.speechSynthesis.cancel(); }catch(e){} sfx.stopBackground(); }
   else if(musicEnabled){ sfx.startBackground(); }
 });
@@ -334,7 +334,7 @@ audioToggle.addEventListener('click',()=>{
 musicToggle.addEventListener('click',()=>{
   musicEnabled = !musicEnabled;
   musicToggle.setAttribute('aria-pressed', String(musicEnabled));
-  musicToggle.textContent = musicEnabled? '🎵 Música' : '🎶 Parar';
+  musicToggle.textContent = musicEnabled? '🎵 Music' : '🎶 No Music';
   if(musicEnabled && audioEnabled) sfx.startBackground(); else sfx.stopBackground();
 });
 
