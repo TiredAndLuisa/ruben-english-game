@@ -131,6 +131,24 @@ class SfxEngine {
   playWrong(){ this.playTone(160, 'square', 0.25, 0.18); this.playTone(110, 'sine', 0.25, 0.06); }
   playClick(){ this.playTone(880, 'sine', 0.08, 0.06); }
   playHover(){ this.playTone(1200, 'triangle', 0.06, 0.04); }
+  playPop(){
+    if(!audioEnabled) return;
+    this.ensureCtx();
+    const ctx = this.ctx;
+    const bufferSize = Math.floor(ctx.sampleRate * 0.04);
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for(let i=0;i<bufferSize;i++){ data[i] = (Math.random()*2-1) * Math.exp(-i/(bufferSize*0.02)); }
+    const src = ctx.createBufferSource(); src.buffer = buffer;
+    const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 900;
+    const g = ctx.createGain(); g.gain.value = 0.0001;
+    src.connect(hp); hp.connect(g); g.connect(ctx.destination);
+    const now = ctx.currentTime;
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.linearRampToValueAtTime(0.12 * this.volume, now + 0.003);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+    src.start(now); src.stop(now + 0.09);
+  }
   startBackground(){
     if(!audioEnabled) return;
     this.ensureCtx();
@@ -233,6 +251,7 @@ class BGAnimator {
     if(!this.canvas) return;
     this.ctx = this.canvas.getContext('2d');
     this.items = [];
+    this.pops = [];
     this.running = false;
     this.resize();
     this._tick = this._tick.bind(this);
@@ -263,15 +282,46 @@ class BGAnimator {
       });
     }
   }
+  handleClick(clientX, clientY){
+    if(!this.items || this.items.length===0) return false;
+    // find the top-most bubble hit (iterate reverse)
+    for(let i=this.items.length-1;i>=0;i--){
+      const it = this.items[i];
+      const dx = clientX - it.x; const dy = clientY - it.y; const d = Math.sqrt(dx*dx + dy*dy);
+      if(d <= it.r){ this.popBubble(i); return true; }
+    }
+    return false;
+  }
+  popBubble(index){
+    const it = this.items[index];
+    if(!it) return;
+    // spawn particle pops
+    const parts = 8 + Math.floor(Math.random()*6);
+    for(let i=0;i<parts;i++){
+      const angle = Math.random()*Math.PI*2;
+      const speed = 1 + Math.random()*3;
+      this.pops.push({ x: it.x, y: it.y, vx: Math.cos(angle)*speed, vy: Math.sin(angle)*speed, r: 3+Math.random()*4, life: 0.45 + Math.random()*0.4, age:0, color: it.color });
+    }
+    // remove the bubble and respawn one later
+    this.items.splice(index,1);
+    setTimeout(()=>{ this.items.push({ x: Math.random()*window.innerWidth, y: window.innerHeight + 40, r: 12 + Math.random()*28, vx:(-0.2 + Math.random()*0.4), vy: - (0.6 + Math.random()*0.6), sway:(Math.random()*0.6)+0.2, phase: Math.random()*Math.PI*2, color: it.color, alpha: 0.4 + Math.random()*0.5 }); }, 700 + Math.random()*800);
+    try{ sfx.playPop(); }catch(e){}
+  }
   start(){ if(!this.canvas || this.running) return; this.running=true; this._last=performance.now(); requestAnimationFrame(this._tick); }
   stop(){ this.running=false; }
   _tick(now){ if(!this.running) return; const dt = Math.min(40, now - (this._last||now)) / 1000; this._last = now; this._update(dt); this._draw(); requestAnimationFrame(this._tick); }
   _update(dt){ for(const it of this.items){ it.phase += dt * it.sway; it.x += it.vx + Math.sin(it.phase) * 0.4; it.y += it.vy * (0.6 + Math.sin(it.phase)*0.2); if(it.y + it.r < -60){ it.y = window.innerHeight + 40; it.x = Math.random()*window.innerWidth; } if(it.x < -80) it.x = window.innerWidth + 80; if(it.x > window.innerWidth + 80) it.x = -80; } }
+  _update(dt){ for(const it of this.items){ it.phase += dt * it.sway; it.x += it.vx + Math.sin(it.phase) * 0.4; it.y += it.vy * (0.6 + Math.sin(it.phase)*0.2); if(it.y + it.r < -60){ it.y = window.innerHeight + 40; it.x = Math.random()*window.innerWidth; } if(it.x < -80) it.x = window.innerWidth + 80; if(it.x > window.innerWidth + 80) it.x = -80; }
+    // update pops
+    for(let i=this.pops.length-1;i>=0;i--){ const p = this.pops[i]; p.age += dt; p.x += p.vx * 60 * dt; p.y += p.vy * 60 * dt + (60*dt*0.2); p.vy += 60*dt*0.02; if(p.age >= p.life) this.pops.splice(i,1); }
+  }
   _draw(){ const ctx = this.ctx; ctx.clearRect(0,0,window.innerWidth,window.innerHeight); for(const it of this.items){ ctx.beginPath(); ctx.fillStyle = it.color; ctx.globalAlpha = it.alpha * 0.95; const gx = it.x; const gy = it.y; // draw soft circle with radial gradient
       const g = ctx.createRadialGradient(gx, gy, it.r*0.2, gx, gy, it.r);
       g.addColorStop(0, this._fade(it.color,0.95));
       g.addColorStop(1, this._fade(it.color,0.35));
       ctx.fillStyle = g; ctx.arc(gx, gy, it.r, 0, Math.PI*2); ctx.fill(); ctx.closePath(); }
+    // draw pops
+    for(const p of this.pops){ ctx.beginPath(); const g2 = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r*2); g2.addColorStop(0, this._fade(p.color,0.95)); g2.addColorStop(1, this._fade(p.color,0.15)); ctx.fillStyle = g2; ctx.globalAlpha = Math.max(0, 1 - (p.age / p.life)); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill(); ctx.closePath(); }
     ctx.globalAlpha = 1;
   }
   _fade(hex, a){ // hex like #rrggbb
@@ -281,7 +331,24 @@ class BGAnimator {
 
 // create and start background animation if canvas is present
 const bgAnim = new BGAnimator('bgCanvas');
-if(bgAnim && typeof bgAnim.start === 'function'){ bgAnim.start(); window.addEventListener('resize', ()=>{ try{ bgAnim.resize(); }catch(e){} }); }
+if(bgAnim && typeof bgAnim.start === 'function'){
+  bgAnim.start();
+  window.addEventListener('resize', ()=>{ try{ bgAnim.resize(); }catch(e){} });
+  // pointer interactions: pop bubbles on click/tap on canvas
+  try{
+    const cvs = document.getElementById('bgCanvas');
+    cvs && cvs.addEventListener('click', (ev)=>{
+      const rect = cvs.getBoundingClientRect();
+      const x = ev.clientX - rect.left; const y = ev.clientY - rect.top;
+      if(bgAnim.handleClick(x,y)){ ev.stopPropagation(); ev.preventDefault(); }
+    });
+    cvs && cvs.addEventListener('touchstart', (ev)=>{
+      const t = ev.touches[0]; if(!t) return;
+      const rect = cvs.getBoundingClientRect(); const x = t.clientX - rect.left; const y = t.clientY - rect.top;
+      if(bgAnim.handleClick(x,y)){ ev.stopPropagation(); ev.preventDefault(); }
+    }, {passive:false});
+  }catch(e){}
+}
 
 // --- Helpers
 function speak(text){

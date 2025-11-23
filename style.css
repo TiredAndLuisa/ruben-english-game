@@ -11,7 +11,7 @@ html,body{height:100%;margin:0;background:transparent;}
 .controls input[type=range]{width:120px}
 .music-select{margin-left:6px;color:#333}
 .container{max-width:980px;margin:14px auto;padding:0 16px;position:relative;z-index:2}
-.bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;mix-blend-mode:screen}
+.bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:auto;mix-blend-mode:screen}
 .levels h2{font-size:20px;margin:6px 0}
 .level-grid{display:flex;flex-direction:column;gap:12px;align-items:stretch}
 .level{background:var(--card);border-radius:12px;padding:18px;text-align:left;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,0.06);display:flex;align-items:center;gap:12px;transition:transform .18s cubic-bezier(.2,.9,.3,1),box-shadow .18s;backdrop-filter:blur(6px)}
