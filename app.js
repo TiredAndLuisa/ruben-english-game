@@ -226,6 +226,63 @@ class SfxEngine {
 
 const sfx = new SfxEngine();
 
+// --- Background animator (floating bubbles / balloons)
+class BGAnimator {
+  constructor(canvasId){
+    this.canvas = document.getElementById(canvasId);
+    if(!this.canvas) return;
+    this.ctx = this.canvas.getContext('2d');
+    this.items = [];
+    this.running = false;
+    this.resize();
+    this._tick = this._tick.bind(this);
+  }
+  resize(){
+    if(!this.canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    this.w = this.canvas.width = Math.floor(window.innerWidth * dpr);
+    this.h = this.canvas.height = Math.floor(window.innerHeight * dpr);
+    this.canvas.style.width = window.innerWidth + 'px';
+    this.canvas.style.height = window.innerHeight + 'px';
+    this.ctx.scale(dpr, dpr);
+    // regenerate items sized to viewport
+    this.items = [];
+    const count = Math.max(12, Math.floor(window.innerWidth / 80));
+    const colors = ['#ffd93d','#ff6b6b','#7bed9f','#6bafff','#a29bfe'];
+    for(let i=0;i<count;i++){
+      this.items.push({
+        x: Math.random()*window.innerWidth,
+        y: Math.random()*window.innerHeight,
+        r: 12 + Math.random()*28,
+        vx: (-0.2 + Math.random()*0.4),
+        vy: (0.2 + Math.random()*0.6) * -1,
+        sway: (Math.random()*0.6)+0.2,
+        phase: Math.random()*Math.PI*2,
+        color: colors[Math.floor(Math.random()*colors.length)],
+        alpha: 0.4 + Math.random()*0.5
+      });
+    }
+  }
+  start(){ if(!this.canvas || this.running) return; this.running=true; this._last=performance.now(); requestAnimationFrame(this._tick); }
+  stop(){ this.running=false; }
+  _tick(now){ if(!this.running) return; const dt = Math.min(40, now - (this._last||now)) / 1000; this._last = now; this._update(dt); this._draw(); requestAnimationFrame(this._tick); }
+  _update(dt){ for(const it of this.items){ it.phase += dt * it.sway; it.x += it.vx + Math.sin(it.phase) * 0.4; it.y += it.vy * (0.6 + Math.sin(it.phase)*0.2); if(it.y + it.r < -60){ it.y = window.innerHeight + 40; it.x = Math.random()*window.innerWidth; } if(it.x < -80) it.x = window.innerWidth + 80; if(it.x > window.innerWidth + 80) it.x = -80; } }
+  _draw(){ const ctx = this.ctx; ctx.clearRect(0,0,window.innerWidth,window.innerHeight); for(const it of this.items){ ctx.beginPath(); ctx.fillStyle = it.color; ctx.globalAlpha = it.alpha * 0.95; const gx = it.x; const gy = it.y; // draw soft circle with radial gradient
+      const g = ctx.createRadialGradient(gx, gy, it.r*0.2, gx, gy, it.r);
+      g.addColorStop(0, this._fade(it.color,0.95));
+      g.addColorStop(1, this._fade(it.color,0.35));
+      ctx.fillStyle = g; ctx.arc(gx, gy, it.r, 0, Math.PI*2); ctx.fill(); ctx.closePath(); }
+    ctx.globalAlpha = 1;
+  }
+  _fade(hex, a){ // hex like #rrggbb
+    return hex + Math.floor(a*255).toString(16).padStart(2,'0');
+  }
+}
+
+// create and start background animation if canvas is present
+const bgAnim = new BGAnimator('bgCanvas');
+if(bgAnim && typeof bgAnim.start === 'function'){ bgAnim.start(); window.addEventListener('resize', ()=>{ try{ bgAnim.resize(); }catch(e){} }); }
+
 // --- Helpers
 function speak(text){
   if(!audioEnabled) return;
