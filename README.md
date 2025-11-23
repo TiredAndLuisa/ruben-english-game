@@ -1,59 +1,59 @@
 # Professor Ruben — Learn English (Kids) — Sound Version
 
-Projeto estático simples para ensinar inglês para crianças, com interface colorida, efeitos sonoros gerados pelo Web Audio API e pronúncia por SpeechSynthesis.
+Simple static project to help kids learn English, featuring a colorful interface, sound effects generated with the Web Audio API, and pronunciation via SpeechSynthesis.
 
-## Estrutura
-- `index.html` — página principal
-- `style.css` — estilos
-- `app.js` — lógica do jogo + motor de sons
+## Structure
+- `index.html` — main page
+- `style.css` — styles
+- `app.js` — game logic + sound engine
 
-## Como rodar localmente
-Abra `index.html` diretamente no navegador ou use um servidor local para evitar restrições de `speechSynthesis`/AudioContext em alguns navegadores.
+## Run locally
+Open `index.html` directly in a browser or run a local static server to avoid `speechSynthesis`/AudioContext restrictions in some browsers.
 
-Com `npx` (recomendado):
+Recommended with `npx`:
 
 ```powershell
 npx http-server -c-1 . -p 8080
-# depois abra http://localhost:8080
+# then open http://localhost:8080
 ```
 
-Ou com Python (se instalado):
+Or with Python (if installed):
 
 ```powershell
 python -m http.server 8080
-# depois abra http://localhost:8080
+# then open http://localhost:8080
 ```
 
-## Deploy no Vercel
-1. Crie um repositório (GitHub) com esses arquivos.
-2. Conecte o repo no Vercel (https://vercel.com) e faça deploy como projeto estático.
+## Deploy to Vercel
+1. Create a GitHub repository with these files.
+2. Connect the repo to Vercel (https://vercel.com) and deploy as a static project.
 
-### Passos rápidos para criar repo e fazer deploy (Windows PowerShell)
+### Quick steps to create the repo and deploy (Windows PowerShell)
 
 ```powershell
 cd "c:\Users\migue\OneDrive\Documents\Nova pasta\ruben-english-game-sound"
 git init
 git add .
 git commit -m "Initial: Ruben English Game with sounds and stickers"
-# criar repo no GitHub via CLI (gh) ou pelo site. Com gh:
+# create the GitHub repo via CLI (gh) or the website. With gh:
 gh repo create your-username/ruben-english-game --public --source=. --remote=origin
 git push -u origin main
 ```
 
-Depois de subir para o GitHub, no Vercel:
-- Faça login em https://vercel.com
-- Clique em "New Project" → selecione o repo `ruben-english-game` → Deploy
+After pushing to GitHub, on Vercel:
+- Log in at https://vercel.com
+- Click "New Project" → select the `ruben-english-game` repo → Deploy
 
-Se preferir, me forneça o link do repo ou um token com acesso (opcional) e eu posso automatizar o deploy para você.
+If you prefer, share the repo link or a token with access (optional) and I can automate the deploy for you.
 
-## Recursos e melhorias possíveis
-- Substituir sons gerados por loops ou efeitos gravados (assets `.mp3`) — mantenha arquivos livres de direitos.
-- Adicionar imagens e animações para cada item.
-- Adicionar tela de progresso e recompensas (stickers).
-- Traduzir textos para múltiplos idiomas.
+## Possible improvements
+- Replace synthesized sounds with recorded tracks (`.mp3`/`.ogg`) — ensure files are public-domain or properly licensed.
+- Add images and animations for each item.
+- Expand progress and rewards (stickers, badges).
+- Add multi-language support.
 
-## Privacidade e compatibilidade
-- O sintetizador `SpeechSynthesis` é usado localmente no navegador — não envia texto para servidores.
-- Testado em navegadores modernos (Chrome, Edge, Firefox). Em Safari o comportamento do WebAudio/AutoPlay pode variar.
+## Privacy & compatibility
+- SpeechSynthesis runs locally in the browser — no text is sent to external servers.
+- Tested in modern browsers (Chrome, Edge, Firefox). Safari may have different autoplay/AudioContext behavior.
 
-Divirta-se! 🎉
+Have fun! 🎉
