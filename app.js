@@ -61,6 +61,36 @@ let musicEnabled = false;
 let masterVolume = parseFloat(volumeRange.value) || 0.8;
 let score = 0;
 let roundsPlayed = 0;
+let selectedSong = 'synth';
+
+// Simple public-domain song arrangements (note names and relative durations)
+const SONGS = {
+  twinkle: [
+    {n:'C4',d:1},{n:'C4',d:1},{n:'G4',d:1},{n:'G4',d:1},{n:'A4',d:1},{n:'A4',d:1},{n:'G4',d:2},
+    {n:'F4',d:1},{n:'F4',d:1},{n:'E4',d:1},{n:'E4',d:1},{n:'D4',d:1},{n:'D4',d:1},{n:'C4',d:2}
+  ],
+  oldmac: [
+    {n:'C4',d:1},{n:'E4',d:1},{n:'G4',d:1},{n:'C5',d:1},{n:'G4',d:2},
+    {n:'C4',d:1},{n:'E4',d:1},{n:'G4',d:1},{n:'C5',d:1},{n:'G4',d:2}
+  ],
+  wheels: [
+    {n:'C4',d:1},{n:'C4',d:1},{n:'C4',d:1},{n:'G4',d:1},{n:'A4',d:2},{n:'G4',d:2},
+    {n:'F4',d:2},{n:'E4',d:2},{n:'D4',d:2},{n:'C4',d:4}
+  ]
+  ,
+  // cheerful, upbeat loop suitable for kids
+  happy: [
+    {n:'C4',d:1},{n:'E4',d:1},{n:'G4',d:1},{n:'C5',d:1},
+    {n:'G4',d:1},{n:'E4',d:1},{n:'C4',d:2},
+    {n:'D4',d:1},{n:'F4',d:1},{n:'A4',d:1},{n:'D5',d:1},
+    {n:'A4',d:1},{n:'F4',d:1},{n:'D4',d:2}
+  ]
+};
+
+function noteToFreq(note){
+  const map = { C4:261.63,D4:293.66,E4:329.63,F4:349.23,G4:392.00,A4:440.00,B4:493.88,C5:523.25 };
+  return map[note] || 440;
+}
 
 // --- Sound engine using WebAudio
 class SfxEngine {
@@ -103,23 +133,93 @@ class SfxEngine {
   startBackground(){
     if(!audioEnabled) return;
     this.ensureCtx();
-    if(this.bgOsc) return; // already
+    if(this._bgLoop) return; // already running
     const ctx = this.ctx;
-    this.bgOsc = ctx.createOscillator();
+    // background master gain
     this.bgGain = ctx.createGain();
-    this.bgOsc.type = 'sine';
-    this.bgOsc.frequency.value = 220;
-    this.bgGain.gain.value = 0.02 * this.volume;
-    this.bgOsc.connect(this.bgGain);
+    this.bgGain.gain.value = 0.0; // start silent, will ramp
     this.bgGain.connect(ctx.destination);
-    this.bgOsc.start();
+    // simple rhythmic sequencer using setInterval
+    const bpm = 100;
+    const beatMs = (60 / bpm) * 1000;
+    const pattern = [1,0,0,0,1,0,0,0]; // kick on 1 and 5
+    const hihatPattern = [1,0,1,0,1,0,1,0];
+    const melody = [0,2,4,5,4,2,0,0];
+    let step = 0;
+    const playKick = ()=>{
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'sine'; o.frequency.value = 100;
+      g.gain.value = 0.0001;
+      o.connect(g); g.connect(this.bgGain);
+      const now = ctx.currentTime;
+      g.gain.setValueAtTime(0.0001, now);
+      g.gain.exponentialRampToValueAtTime(0.6 * this.volume, now + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+      o.frequency.setValueAtTime(120, now);
+      o.frequency.exponentialRampToValueAtTime(60, now + 0.3);
+      o.start(now); o.stop(now + 0.34);
+    };
+    const playHihat = ()=>{
+      const bufferSize = 2 * ctx.sampleRate;
+      const noise = ctx.createBufferSource();
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for(let i=0;i<bufferSize;i++){ data[i] = (Math.random()*2-1) * Math.exp(-i/(ctx.sampleRate*0.02)); }
+      noise.buffer = buffer;
+      const f = ctx.createBiquadFilter(); f.type='highpass'; f.frequency.value = 8000;
+      const g = ctx.createGain(); g.gain.value = 0.0001;
+      noise.connect(f); f.connect(g); g.connect(this.bgGain);
+      const now = ctx.currentTime;
+      g.gain.setValueAtTime(0.0001, now);
+      g.gain.linearRampToValueAtTime(0.25 * this.volume, now + 0.001);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+      noise.start(now); noise.stop(now + 0.14);
+    };
+    const playMelody = (n)=>{
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.type = 'sawtooth';
+      const base = 440; // A4
+      const note = base * Math.pow(2, (n-9)/12); // offset to get pleasant range
+      o.frequency.value = note;
+      g.gain.value = 0.0001;
+      o.connect(g); g.connect(this.bgGain);
+      const now = ctx.currentTime;
+      g.gain.setValueAtTime(0.0001, now);
+      g.gain.exponentialRampToValueAtTime(0.12 * this.volume, now + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      o.start(now); o.stop(now + 0.36);
+    };
+    // ramp up master
+    const startTime = ctx.currentTime;
+    this.bgGain.gain.cancelScheduledValues(startTime);
+    this.bgGain.gain.setValueAtTime(0.0, startTime);
+    this.bgGain.gain.linearRampToValueAtTime(0.25 * this.volume, startTime + 0.6);
+
+    this._bgLoop = setInterval(()=>{
+      if(!audioEnabled){ return; }
+      const p = step % pattern.length;
+      if(pattern[p]) playKick();
+      if(hihatPattern[p]) playHihat();
+      // melody selection: either simple synth melody or arranged song
+      if(selectedSong === 'synth'){
+        const m = melody[step % melody.length];
+        if(m!==undefined && m!==null) playMelody(60 + m);
+      } else {
+        const song = SONGS[selectedSong] || SONGS.twinkle;
+        const idx = step % song.length;
+        const note = song[idx];
+        if(note && note.n){ playMelody(noteToFreq(note.n)); }
+      }
+      step++;
+    }, beatMs / 2); // 8th notes
+    // store for stop
+    this._bgLoopStep = 0;
   }
   stopBackground(){
-    if(!this.bgOsc) return;
-    try{ this.bgOsc.stop(); }catch(e){}
-    this.bgOsc.disconnect();
-    this.bgGain.disconnect();
-    this.bgOsc = null; this.bgGain = null;
+    if(this._bgLoop){ clearInterval(this._bgLoop); this._bgLoop = null; }
+    if(this.bgGain){ try{ this.bgGain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.6); setTimeout(()=>{ try{ this.bgGain.disconnect(); }catch(e){} }, 700); }catch(e){} }
+    this.bgGain = null;
   }
 }
 
@@ -242,6 +342,17 @@ volumeRange.addEventListener('input',(e)=>{
   masterVolume = parseFloat(e.target.value);
   sfx.setVolume(masterVolume);
 });
+
+// music selector wiring
+const musicSelect = document.getElementById('musicSelect');
+if(musicSelect){
+  musicSelect.value = selectedSong;
+  musicSelect.addEventListener('change', (e)=>{
+    selectedSong = e.target.value || 'synth';
+    sfx.playClick();
+    if(musicEnabled && audioEnabled){ sfx.stopBackground(); sfx.startBackground(); }
+  });
+}
 
 // --- Init
 buildLevels();

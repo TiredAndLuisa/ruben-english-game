@@ -9,6 +9,7 @@ html,body{height:100%;margin:0;background:linear-gradient(180deg,#fef3f3,#fff);}
 .controls button[aria-pressed="true"]{outline:3px solid rgba(0,0,0,.08)}
 .controls .volume{display:flex;align-items:center;gap:8px}
 .controls input[type=range]{width:120px}
+.music-select{margin-left:6px;color:#333}
 .container{max-width:980px;margin:14px auto;padding:0 16px}
 .levels h2{font-size:20px;margin:6px 0}
 .level-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
