@@ -400,6 +400,32 @@ function showActivationIfNeeded(){
   };
 }
 
+// --- Admin generate key UI
+function setupAdminUI(){
+  const badge = document.getElementById('adminBadge');
+  const modal = document.getElementById('adminModal');
+  if(!badge || !modal) return;
+  const close = document.getElementById('adminClose');
+  const genBtn = document.getElementById('genKeyBtn');
+  const input = document.getElementById('adminSecretInput');
+  const result = document.getElementById('genResult');
+  badge.addEventListener('click', ()=>{ modal.classList.remove('hidden'); result.textContent=''; input.value=''; });
+  close.addEventListener('click', ()=>{ modal.classList.add('hidden'); });
+  genBtn.addEventListener('click', async ()=>{
+    const secret = (input.value||'').trim(); if(!secret){ result.textContent='Enter secret'; return; }
+    result.textContent = 'Generating...';
+    try{
+      const r = await fetch('/api/generateKey', { method: 'POST', headers: { 'x-gen-secret': secret } });
+      const j = await r.json();
+      if(r.status===200 && j.key){ result.innerHTML = `<div>Key: <strong>${j.key}</strong></div><div style="margin-top:8px"><button id="copyKey">Copy</button></div>`;
+        const copyBtn = document.getElementById('copyKey'); copyBtn.addEventListener('click', ()=>{ navigator.clipboard && navigator.clipboard.writeText(j.key); });
+      } else {
+        result.textContent = 'Error: ' + (j.error || 'failed');
+      }
+    }catch(e){ result.textContent = 'Error: ' + e.message; }
+  });
+}
+
 function shuffle(a){
   for(let i=a.length-1;i>0;i--){
     const j = Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];
@@ -527,6 +553,8 @@ buildLevels();
 
 // show activation modal if not activated
 setTimeout(()=>{ showActivationIfNeeded(); }, 700);
+// setup admin UI
+setTimeout(()=>{ setupAdminUI(); }, 800);
 
 // auto-run a friendly chime once page is interacted with
 window.addEventListener('click',function onFirst(){ sfx.playChord(520); window.removeEventListener('click', onFirst); },{once:true});

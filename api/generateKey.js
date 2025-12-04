@@ -5,7 +5,8 @@ const { initFirebase } = require('./_initFirebase');
 module.exports = async function (req, res) {
   // protect generation with a secret header
   const secret = process.env.KEY_GEN_SECRET || '';
-  const provided = req.headers['x-gen-secret'] || req.query.secret || '';
+  // Accept multiple header names for compatibility with different admin pages
+  const provided = req.headers['x-gen-secret'] || req.headers['x-key-gen-secret'] || req.headers['x-key-gen'] || req.query.secret || '';
   if(!secret || provided !== secret){ return res.status(403).json({ error: 'forbidden' }); }
 
   try{

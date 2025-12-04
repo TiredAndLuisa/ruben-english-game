@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Key Generator — Simple</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main class="card">
+    <h1>Generate Access Key</h1>
+
+    <label>API base URL
+      <input id="apiUrl" placeholder="https://your-project-domain.example" />
+    </label>
+
+    <label>Admin secret
+      <input id="secret" placeholder="x-key-gen-secret value" type="password" />
+    </label>
+
+    <button id="genBtn" class="big">Generate Key</button>
+
+    <div id="result" class="result hidden">
+      <p>Key created:</p>
+      <pre id="keyText"></pre>
+      <div class="row">
+        <button id="copyBtn">Copy</button>
+        <button id="newBtn">Generate Another</button>
+      </div>
+    </div>
+
+    <p class="note">This page calls the serverless `generateKey` endpoint. Keep the secret private.</p>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
