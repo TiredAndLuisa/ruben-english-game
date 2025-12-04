@@ -27,6 +27,18 @@
   </header>
 
   <main class="container">
+    <div id="activationModal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-content">
+        <h3>Activate with Key</h3>
+        <p>Enter your activation key to use this game on this device.</p>
+        <input id="activationInput" placeholder="Paste your key" style="width:100%;padding:8px;border-radius:8px;border:1px solid #ddd;margin:8px 0">
+        <div style="display:flex;gap:8px;justify-content:center">
+          <button id="activateBtn">Activate</button>
+          <button id="activationClose">Close</button>
+        </div>
+        <div id="activationMsg" style="margin-top:8px;font-weight:700"></div>
+      </div>
+    </div>
     <section class="levels" id="levels">
       <h2>Choose a theme</h2>
       <div class="level-grid" id="levelGrid"></div>

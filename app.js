@@ -362,6 +362,44 @@ function speak(text){
   }
 }
 
+// device identity for binding keys
+function getDeviceId(){
+  try{
+    let id = localStorage.getItem('ruben_device_id');
+    if(!id){ id = 'd_' + Math.random().toString(36).slice(2,12); localStorage.setItem('ruben_device_id', id); }
+    return id;
+  }catch(e){ return 'd_unknown'; }
+}
+
+async function redeemKeyUI(key){
+  const deviceId = getDeviceId();
+  try{
+    const r = await fetch('/api/redeemKey', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ key, deviceId }) });
+    const j = await r.json();
+    if(r.status===200){ localStorage.setItem('ruben_activation', JSON.stringify({ key, deviceId })); return { ok:true }; }
+    return { ok:false, error: j.error || 'error' };
+  }catch(e){ return { ok:false, error: e.message }; }
+}
+
+function showActivationIfNeeded(){
+  try{
+    const a = localStorage.getItem('ruben_activation');
+    if(a) return; // already activated
+  }catch(e){}
+  // show modal
+  const modal = document.getElementById('activationModal'); if(!modal) return;
+  modal.classList.remove('hidden');
+  const close = document.getElementById('activationClose'); const actBtn = document.getElementById('activateBtn'); const input = document.getElementById('activationInput'); const msg = document.getElementById('activationMsg');
+  close.onclick = ()=>{ modal.classList.add('hidden'); };
+  actBtn.onclick = async ()=>{
+    const key = (input.value||'').trim(); if(!key) { msg.textContent='Please enter a key'; return; }
+    msg.textContent = 'Checking...';
+    const res = await redeemKeyUI(key);
+    if(res.ok){ msg.textContent = 'Activated! Enjoy.'; setTimeout(()=>modal.classList.add('hidden'),800); }
+    else { msg.textContent = 'Error: ' + (res.error||'invalid'); }
+  };
+}
+
 function shuffle(a){
   for(let i=a.length-1;i>0;i--){
     const j = Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];
@@ -486,6 +524,9 @@ if(musicSelect){
 
 // --- Init
 buildLevels();
+
+// show activation modal if not activated
+setTimeout(()=>{ showActivationIfNeeded(); }, 700);
 
 // auto-run a friendly chime once page is interacted with
 window.addEventListener('click',function onFirst(){ sfx.playChord(520); window.removeEventListener('click', onFirst); },{once:true});
